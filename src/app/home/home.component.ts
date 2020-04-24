@@ -1,36 +1,60 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
-import {Course} from '../model/course';
-import {Observable} from 'rxjs';
-import {CoursesStore} from '../services/courses.store';
+import {Component, OnInit} from '@angular/core';
+import {Course, sortCoursesBySeqNo} from '../model/course';
+import {interval, noop, Observable, of, throwError, timer} from 'rxjs';
+import {catchError, delay, delayWhen, filter, finalize, map, retryWhen, shareReplay, tap} from 'rxjs/operators';
+import {HttpClient} from '@angular/common/http';
+import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
+import {CourseDialogComponent} from '../course-dialog/course-dialog.component';
 
 
 @Component({
   selector: 'home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
 
-  beginnerCourses$: Observable<Course[]>;
+  beginnerCourses: Course[];
 
-  advancedCourses$: Observable<Course[]>;
+  advancedCourses: Course[];
 
-  constructor(private coursesStore: CoursesStore) {
+
+  constructor(private http: HttpClient, private dialog: MatDialog) {
 
   }
 
   ngOnInit() {
-      this.reloadCourses();
+
+    this.http.get('/api/courses')
+      .subscribe(
+        res => {
+
+          const courses: Course[] = res["payload"].sort(sortCoursesBySeqNo);
+
+          this.beginnerCourses = courses.filter(course => course.category == "BEGINNER");
+
+          this.advancedCourses = courses.filter(course => course.category == "ADVANCED");
+
+        });
+
   }
 
-  reloadCourses() {
+  editCourse(course: Course) {
 
-      this.beginnerCourses$ = this.coursesStore.filterByCategory("BEGINNER");
+    const dialogConfig = new MatDialogConfig();
 
-      this.advancedCourses$ = this.coursesStore.filterByCategory("ADVANCED");
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.width = "400px";
+
+    dialogConfig.data = course;
+
+    const dialogRef = this.dialog.open(CourseDialogComponent, dialogConfig);
+
   }
 
 }
+
+
 
 
