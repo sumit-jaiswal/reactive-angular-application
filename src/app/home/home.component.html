@@ -4,76 +4,17 @@
     <h3>All Courses</h3>
 
     <mat-tab-group>
-
         <mat-tab label="Beginners">
+          <cours-list [courses]="beginnerCourses$ | async" (courseOnChange)="reloadCourseList()" >
 
-          <mat-card *ngFor="let course of beginnerCourses" class="course-card mat-elevation-z10">
-
-            <mat-card-header>
-
-              <mat-card-title>{{course.description}}</mat-card-title>
-
-            </mat-card-header>
-
-            <img mat-card-image [src]="course.iconUrl">
-
-            <mat-card-content>
-              <p>{{course.longDescription}}</p>
-            </mat-card-content>
-
-            <mat-card-actions class="course-actions">
-
-              <button mat-button class="mat-raised-button mat-primary" [routerLink]="['/courses', course.id]">
-                VIEW COURSE
-              </button>
-
-              <button mat-button class="mat-raised-button mat-accent"
-                      (click)="editCourse(course)">
-                EDIT
-              </button>
-
-            </mat-card-actions>
-
-          </mat-card>
-
+          </cours-list>
         </mat-tab>
 
         <mat-tab label="Advanced">
+          <cours-list [courses]="advancedCourses$ | async" (courseOnChange)="reloadCourseList()">
 
-          <mat-card *ngFor="let course of advancedCourses" class="course-card mat-elevation-z10">
-
-            <mat-card-header>
-
-              <mat-card-title>{{course.description}}</mat-card-title>
-
-            </mat-card-header>
-
-            <img mat-card-image [src]="course.iconUrl">
-
-            <mat-card-content>
-              <p>{{course.longDescription}}</p>
-            </mat-card-content>
-
-            <mat-card-actions class="course-actions">
-
-              <button mat-button class="mat-raised-button mat-primary" [routerLink]="['/courses', course.id]">
-                VIEW COURSE
-              </button>
-
-              <button mat-button class="mat-raised-button mat-accent"
-                      (click)="editCourse(course)">
-                EDIT
-              </button>
-
-            </mat-card-actions>
-
-          </mat-card>
-
+          </cours-list>
         </mat-tab>
-
     </mat-tab-group>
-
-
-
 </div>
 

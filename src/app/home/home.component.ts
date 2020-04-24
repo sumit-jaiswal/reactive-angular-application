@@ -5,6 +5,7 @@ import {catchError, delay, delayWhen, filter, finalize, map, retryWhen, shareRep
 import {HttpClient} from '@angular/common/http';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 import {CourseDialogComponent} from '../course-dialog/course-dialog.component';
+import { CourseService } from '../shared/course.service';
 
 
 @Component({
@@ -14,44 +15,44 @@ import {CourseDialogComponent} from '../course-dialog/course-dialog.component';
 })
 export class HomeComponent implements OnInit {
 
-  beginnerCourses: Course[];
+  beginnerCourses$: Observable<Course[]>;
 
-  advancedCourses: Course[];
+  advancedCourses$: Observable<Course[]>;
 
 
-  constructor(private http: HttpClient, private dialog: MatDialog) {
+  constructor(private courseService: CourseService) {
 
   }
 
   ngOnInit() {
-
-    this.http.get('/api/courses')
-      .subscribe(
-        res => {
-
-          const courses: Course[] = res["payload"].sort(sortCoursesBySeqNo);
-
-          this.beginnerCourses = courses.filter(course => course.category == "BEGINNER");
-
-          this.advancedCourses = courses.filter(course => course.category == "ADVANCED");
-
-        });
-
+    this.reloadCourseList();
   }
 
-  editCourse(course: Course) {
+  reloadCourseList(){
+   
+    const courses$ = this.courseService.getCourse()
+    .pipe(
+      map(courses=> courses.sort(sortCoursesBySeqNo))
+    );
 
-    const dialogConfig = new MatDialogConfig();
+    // manual subscription for testing.
+    // courses$.subscribe((res)=> {
+    //   console.log('called courses:- ', res)
+    // });
 
-    dialogConfig.disableClose = true;
-    dialogConfig.autoFocus = true;
-    dialogConfig.width = "400px";
+    this.beginnerCourses$ = courses$.pipe(
+      map(courses => courses.filter(course=> course.category =='BEGINNER'))
+    );
 
-    dialogConfig.data = course;
+    this.advancedCourses$ = courses$.pipe(
+      map(courses => courses.filter(course=> course.category=='ADVANCED'))
+    );
 
-    const dialogRef = this.dialog.open(CourseDialogComponent, dialogConfig);
-
+    
   }
+
+
+
 
 }
 
